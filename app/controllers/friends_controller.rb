@@ -1,35 +1,45 @@
 class FriendsController < ApplicationController
-  def new
-    @friend = Friend.new
+  before_action :authorize
+  before_action :find_friend, only: %i[show update destroy]
+
+  def index
+    @friends = current_user.friends
+
+    render json: @friends
+  end
+
+  def show
+    render json: @friend
   end
 
   def create
-    @friend = Friend.new(Friend_params)
-    if request_exist?
-      redirect_to users_path,
-                  alert: 'Request already sent'
-    elsif !request_exist? && @friend.save
-      redirect_to users_path
+    @friend = current_user.friends.build(collection_params)
+
+    if @friend.save
+      render json: @friend, status: :created
+    else
+      render json: @friend.errors, status: :unprocessable_entity
     end
   end
 
-  def show; end
-
   def update
-    @friend = Friend.find(params[:id])
-    redirect_to users_path if @friend.confirmed == false and @friend.accept_request
+    if @friend.update(friend_params)
+      render json: @friend
+    else
+      render json: @friend.errors, status: :unprocessable_entity
+    end
   end
 
   def destroy
-    @friend = Friend.where(user_id: [params[:id], current_user.id],
-                           friend_id: [current_user.id, params[:id]])
-    redirect_to users_path if @friend.destroy_all
+    @friend.destroy
+    render json: { message: 'Friend deleted' }, status: :ok
   end
 
   private
 
-  def request_exist?
-    current_user.already_friend?(User.find_by(id: params[:friend][:friend_id]))
+  def find_friend
+    @friend = current_user.friends.find_by(id: params[:id])
+    render json: { failure: "Friend doesn't exist." }, status: :not_found unless @friend
   end
 
   def friend_params
