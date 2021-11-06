@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_11_06_001106) do
+ActiveRecord::Schema.define(version: 2021_11_06_002150) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -21,6 +21,8 @@ ActiveRecord::Schema.define(version: 2021_11_06_001106) do
     t.bigint "user_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.bigint "collection_id", null: false
+    t.index ["collection_id"], name: "index_all_restaurants_on_collection_id"
     t.index ["user_id"], name: "index_all_restaurants_on_user_id"
   end
 
@@ -41,6 +43,7 @@ ActiveRecord::Schema.define(version: 2021_11_06_001106) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  add_foreign_key "all_restaurants", "collections"
   add_foreign_key "all_restaurants", "users"
   add_foreign_key "collections", "users"
 end

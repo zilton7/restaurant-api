@@ -4,5 +4,5 @@ class AllRestaurant < ApplicationRecord
 
   # validations
   validates_presence_of :name
-  validates_presence_of :opening_date 
+  validates_presence_of :opening_date
 end
